@@ -10,7 +10,6 @@ data class Token(val type: TokenType, var value: String)
 typealias Value = Pair<Any, DataType>
 
 fun String.toValue(data: DataArray): Value {
-    println("parsing '$this'")
     stringRegex.find(this)?.let { match ->
         return Value(match.value, DataType.STRING)
     }
@@ -76,3 +75,5 @@ enum class TokenType {
         }
     }
 }
+
+data class Declaration(val constant: Boolean, var name: String, var nextValue: Boolean)

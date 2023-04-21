@@ -23,7 +23,7 @@ fun main(args: Array<String>) {
                 try {
                     if (debug) println("Intepreting file ${file.name}")
                     val interpreter = Interpreter(file, debug)
-                    interpreter.interpret()
+                    interpreter.parse()
                 } catch (e: InterpreterException) {
                     System.err.println("'${e.message}' occurred on line ${e.line}")
                 }

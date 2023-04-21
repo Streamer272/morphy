@@ -1,6 +1,6 @@
 package interpreter
 
-data class Data(val name: String, val value: Any, val type: DataType)
+data class Data(val name: String, val value: Any, val type: DataType, val constant: Boolean)
 typealias DataArray = Array<Data>
 
 inline fun <reified T> Any.cast(line: Int): T {

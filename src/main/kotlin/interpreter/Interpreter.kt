@@ -6,14 +6,16 @@ val operators = arrayOf("+", "-", "*", "/", "^", "%")
 val conditions = arrayOf("&&", "||", "!", "??")
 val assignments = arrayOf("=")
 val comments = arrayOf("//")
-val keywords = arrayOf("if")
+val declarationConstant = "val"
+val declarations = arrayOf("var", declarationConstant)
+val keywords = arrayOf("if", *declarations)
 
 val symbols = arrayOf('+', '-', '*', '/', '^', '%', '&', '|', '!', '?', '=')
 
 class Interpreter(private val file: File, private val debug: Boolean) {
     private var data: DataArray = arrayOf()
 
-    fun interpret() {
+    fun parse() {
         val lines = this.file.readText().split(Regex("[\n;]")).map { it.trim() }
 
         var lineIndex = 1
@@ -65,7 +67,7 @@ class Interpreter(private val file: File, private val debug: Boolean) {
             if (debug) println("Executing line '$line'")
             if (debug) tokens.forEach { println("\t${it.type} ${it.value}") }
             try {
-                interpretTokens(tokens)
+                interpret(tokens)
             } catch (e: InternalInterpreterException) {
                 throw InterpreterException(e.message, lineIndex)
             }
@@ -73,58 +75,43 @@ class Interpreter(private val file: File, private val debug: Boolean) {
         }
     }
 
-    private fun interpretTokens(tokens: Array<Token>) {
+    private fun interpret(tokens: Array<Token>) {
         var tokenIndex = 0
+        var declaration: Declaration? = null
+        var operands: Pair<Data, Data>? = null
+        var operator: String? = null
+
         for (token in tokens) {
-            if (token.type == TokenType.COMMENT) return
+            when (token.type) {
+                TokenType.COMMENT -> return
+                TokenType.KEYWORD -> {
+                    if (declarations.contains(token.value)) {
+                        declaration = Declaration(token.value == declarationConstant, "", false)
+                    }
+                }
+
+                else -> {}
+            }
+
+            if (declaration != null) {
+                when (token.type) {
+                    TokenType.EVALUATION -> {
+                        if (!declaration.nextValue) {
+                            declaration.name = token.value
+                        } else {
+                            val value = token.value.toValue(data)
+                            data += Data(declaration.name, value.first, value.second, declaration.constant)
+                            declaration = null
+                        }
+                    }
+
+                    TokenType.ASSIGNMENT -> {
+                        declaration.nextValue = true
+                    }
+
+                    else -> {}
+                }
+            }
         }
-
-//        if (tokens.isOperator()) {
-//            val data1 = tokens[0].toValue(data)
-//            val value1 = data1.first.cast<Float>(tokens[0].line)
-//            val operator = tokens[1]
-//            val data2 = tokens[2].toValue(data)
-//            val value2 = data2.first.cast<Float>(tokens[0].line)
-//
-//            if (debug) println("$data1 $operator $data2 = ")
-//            when (operator.value) {
-//                "+" -> println(value1 + value2)
-//                "-" -> println(value1 - value2)
-//                "*" -> println(value1 * value2)
-//                "/" -> println(value1 / value2)
-//                "^" -> println(value1.pow(value2))
-//                "%" -> println(value1 % value2)
-//            }
-//        } else if (tokens.isAssignemnt()) {
-//            val name = tokens[0].value
-//            val (value, type) = tokens[2].toValue(data)
-//            val constructed = Data(name, value, type)
-//
-//            data.find { it.name == tokens[0].value }?.let { variable ->
-//                data[data.indexOf(variable)] = constructed
-//            } ?: run {
-//                data += Data(name, value, type)
-//            }
-//        }
-    }
-
-    private fun evaluateTokens(tokens: Array<Token>) {
-//        if (tokens.isOperator()) {
-//            val data1 = tokens[0].toValue(data)
-//            val value1 = data1.first.cast<Float>(tokens[0].line)
-//            val operator = tokens[1]
-//            val data2 = tokens[2].toValue(data)
-//            val value2 = data2.first.cast<Float>(tokens[0].line)
-//
-//            if (debug) println("$data1 $operator $data2 = ")
-//            when (operator.value) {
-//                "+" -> println(value1 + value2)
-//                "-" -> println(value1 - value2)
-//                "*" -> println(value1 * value2)
-//                "/" -> println(value1 / value2)
-//                "^" -> println(value1.pow(value2))
-//                "%" -> println(value1 % value2)
-//            }
-//        }
     }
 }
