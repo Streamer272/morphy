@@ -1,6 +1,7 @@
 package interpreter
 
 import java.io.File
+import kotlin.math.pow
 
 val operators = arrayOf("+", "-", "*", "/", "^", "%")
 val conditions = arrayOf("&&", "||", "!", "??")
@@ -64,7 +65,7 @@ class Interpreter(private val file: File, private val debug: Boolean) {
             }
             commit()
 
-            if (debug) println("Executing line '$line'")
+            if (debug) println("Interpreting '$line'")
             if (debug) tokens.forEach { println("\t${it.type} ${it.value}") }
             try {
                 interpret(tokens)
@@ -78,29 +79,62 @@ class Interpreter(private val file: File, private val debug: Boolean) {
     private fun interpret(tokens: Array<Token>) {
         var tokenIndex = 0
         var declaration: Declaration? = null
-        var operands: Pair<Data, Data>? = null
+        var operand: Value? = null
         var operator: String? = null
 
         for (token in tokens) {
-            when (token.type) {
-                TokenType.COMMENT -> return
-                TokenType.KEYWORD -> {
-                    if (declarations.contains(token.value)) {
-                        declaration = Declaration(token.value == declarationConstant, "", false)
+            if (declaration == null) {
+                when (token.type) {
+                    TokenType.COMMENT -> return
+                    TokenType.KEYWORD -> {
+                        if (declarations.contains(token.value)) {
+                            declaration = Declaration(token.value == declarationConstant, "", false)
+                        }
                     }
+
+                    TokenType.EVALUATION -> {
+                        if (operand != null) {
+                            if (operator == null) throw InternalSyntaxException("perator expected")
+
+                            val value = token.value.toValue(data)
+                            when (operator) {
+                                "+" -> println(operand.to<Float>().first + value.to<Float>().first)
+                                "-" -> println(operand.to<Float>().first - value.to<Float>().first)
+                                "*" -> println(operand.to<Float>().first * value.to<Float>().first)
+                                "/" -> println(operand.to<Float>().first / value.to<Float>().first)
+                                "^" -> println(operand.to<Float>().first.pow(value.to<Float>().first))
+                                "%" -> println(operand.to<Float>().first % value.to<Float>().first)
+                            }
+                        } else {
+                            operand = token.value.toValue(data)
+                        }
+                    }
+
+                    TokenType.OPERATOR -> {
+                        operator = token.value
+                    }
+
+                    else -> {}
                 }
-
-                else -> {}
-            }
-
-            if (declaration != null) {
+            } else {
                 when (token.type) {
                     TokenType.EVALUATION -> {
                         if (!declaration.nextValue) {
                             declaration.name = token.value
                         } else {
                             val value = token.value.toValue(data)
-                            data += Data(declaration.name, value.first, value.second, declaration.constant)
+                            val existing = data.find { it.name == declaration!!.name }
+                            if (existing != null) {
+                                if (existing.constant) {
+                                    throw InternalConstantException("${existing.name} is a constant")
+                                } else if (existing.value.second != value.second) {
+                                    throw InternalTypeException("${existing.name} was expecting ${existing.value.second}, but ${value.second} was provided")
+                                }
+
+                                existing.value = value
+                            } else {
+                                data += Data(declaration.name, value, declaration.constant)
+                            }
                             declaration = null
                         }
                     }

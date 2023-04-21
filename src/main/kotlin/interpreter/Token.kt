@@ -24,7 +24,7 @@ fun String.toValue(data: DataArray): Value {
     }
 
     data.find { it.name == this }?.let { variable ->
-        return Value(variable.value, variable.type)
+        return variable.value
     }
 
     throw InternalTypeException("Illegal type")

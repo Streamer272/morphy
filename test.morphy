@@ -1,10 +1,10 @@
 // this is a comment
 var x = 5
 val y = 2
-// x + y
-// x - y
-//x * y
-//x / y
-//x ^ y
-//x % y
-//x + "will fail"
+x + y
+x - y
+x * y
+x / y
+x ^ y
+x % y
+x + "will fail"
