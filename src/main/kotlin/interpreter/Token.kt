@@ -30,9 +30,14 @@ fun String.toValue(data: DataArray): Value {
     throw InternalTypeException("Illegal type")
 }
 
-inline fun <reified T> Value.to(): Pair<T, DataType> {
-    if (this.first !is T) throw InternalTypeException("Illegal type")
+inline fun <reified T> Value.to(name: String): Pair<T, DataType> {
+    if (this.first !is T) throw InternalTypeException("expected ${name}, got ${this.first::class.java.simpleName.lowercase()}")
     return Pair(this.first as T, this.second)
+}
+
+fun Value.toFloat(): Float {
+    val new = this.to<Float>("number")
+    return new.first
 }
 
 fun Array<Token>.isOperator(): Boolean {

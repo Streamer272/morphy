@@ -77,7 +77,6 @@ class Interpreter(private val file: File, private val debug: Boolean) {
     }
 
     private fun interpret(tokens: Array<Token>) {
-        var tokenIndex = 0
         var declaration: Declaration? = null
         var operand: Value? = null
         var operator: String? = null
@@ -97,14 +96,17 @@ class Interpreter(private val file: File, private val debug: Boolean) {
                             if (operator == null) throw InternalSyntaxException("perator expected")
 
                             val value = token.value.toValue(data)
+                            val floatName = "number"
                             when (operator) {
-                                "+" -> println(operand.to<Float>().first + value.to<Float>().first)
-                                "-" -> println(operand.to<Float>().first - value.to<Float>().first)
-                                "*" -> println(operand.to<Float>().first * value.to<Float>().first)
-                                "/" -> println(operand.to<Float>().first / value.to<Float>().first)
-                                "^" -> println(operand.to<Float>().first.pow(value.to<Float>().first))
-                                "%" -> println(operand.to<Float>().first % value.to<Float>().first)
+                                "+" -> println(operand.toFloat() + value.toFloat())
+                                "-" -> println(operand.toFloat() - value.toFloat())
+                                "*" -> println(operand.toFloat() * value.toFloat())
+                                "/" -> println(operand.toFloat() / value.toFloat())
+                                "^" -> println(operand.toFloat().pow(value.toFloat()))
+                                "%" -> println(operand.toFloat() % value.toFloat())
                             }
+                            operand = null
+                            operator = null
                         } else {
                             operand = token.value.toValue(data)
                         }
@@ -145,6 +147,16 @@ class Interpreter(private val file: File, private val debug: Boolean) {
 
                     else -> {}
                 }
+            }
+        }
+
+        if (operand != null) {
+            if (operand.second == DataType.NUMBER) {
+                var k = 1
+                if (operator != null && operator == "-") k = -1
+                println(operand.toFloat() * k)
+            } else {
+                println(operand.first)
             }
         }
     }
