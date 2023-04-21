@@ -1,6 +1,7 @@
 package interpreter
 
 data class Data(val name: String, val value: Any, val type: DataType)
+typealias DataArray = Array<Data>
 
 inline fun <reified T> Any.cast(line: Int): T {
     if (this !is T) throw InterpreterTypeException("Illegal type", line)

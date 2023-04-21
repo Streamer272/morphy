@@ -23,6 +23,19 @@
                 "-Dfile.encoding=UTF-8"
             ],
             "args": ["run", "test.morphy"],
-        }
+        },
+        {
+            "name": "MainKt Debug",
+            "type": "jps-run",
+            "dependsOn": [
+                "Build morphy"
+            ],
+            "mainClass": "MainKt",
+            "module": "morphy.main",
+            "options": [
+                "-Dfile.encoding=UTF-8"
+            ],
+            "args": ["run", "test.morphy", "--debug"],
+        },
     ]
 }
