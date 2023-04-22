@@ -82,6 +82,7 @@ class Interpreter(private val file: File, private val debug: Boolean) {
         var operand: Value? = null
         var operandName: String? = null
         var operator: String? = null
+        var type = false
 
         for (token in tokens) {
             if (declaration == null) {
@@ -91,10 +92,16 @@ class Interpreter(private val file: File, private val debug: Boolean) {
                         if (declarations.contains(token.value)) {
                             declaration = Declaration(token.value == declarationConstant, "", false)
                         }
+                        if (keywordType == token.value) {
+                            type = true
+                        }
                     }
 
                     TokenType.EVALUATION -> {
-                        if (operand != null) {
+                        if (type) {
+                            println(token.value.toValue(data).second.name.lowercase())
+                            type = false
+                        } else if (operand != null) {
                             if (operator == null) throw InternalSyntaxException("perator expected")
 
                             val value = token.value.toValue(data)
