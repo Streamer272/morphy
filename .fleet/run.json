@@ -22,7 +22,7 @@
             "options": [
                 "-Dfile.encoding=UTF-8"
             ],
-            "args": ["run", "test.morphy"],
+            "args": ["run", "example.morphy"],
         },
         {
             "name": "MainKt Debug",
@@ -35,7 +35,7 @@
             "options": [
                 "-Dfile.encoding=UTF-8"
             ],
-            "args": ["run", "test.morphy", "--debug"],
+            "args": ["run", "example.morphy", "--debug"],
         },
     ]
 }

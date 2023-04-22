@@ -9,7 +9,8 @@ val assignments = arrayOf("=")
 val comments = arrayOf("//")
 val declarationConstant = "val"
 val declarations = arrayOf("var", declarationConstant)
-val keywords = arrayOf("if", *declarations)
+val keywordType = "type"
+val keywords = arrayOf(keywordType, *declarations)
 
 val symbols = arrayOf('+', '-', '*', '/', '^', '%', '&', '|', '!', '?', '=')
 
@@ -51,7 +52,7 @@ class Interpreter(private val file: File, private val debug: Boolean) {
                         return@char
                     }
 
-                    if (symbols.contains(char) == isSymbols) {
+                    if (symbols.contains(char) == isSymbols || insideString) {
                         buffer += char
                     } else {
                         return@char commit().also { buffer = char.toString() }
@@ -79,6 +80,7 @@ class Interpreter(private val file: File, private val debug: Boolean) {
     private fun interpret(tokens: Array<Token>) {
         var declaration: Declaration? = null
         var operand: Value? = null
+        var operandName: String? = null
         var operator: String? = null
 
         for (token in tokens) {
@@ -96,7 +98,6 @@ class Interpreter(private val file: File, private val debug: Boolean) {
                             if (operator == null) throw InternalSyntaxException("perator expected")
 
                             val value = token.value.toValue(data)
-                            val floatName = "number"
                             when (operator) {
                                 "+" -> println(operand.toFloat() + value.toFloat())
                                 "-" -> println(operand.toFloat() - value.toFloat())
@@ -109,11 +110,18 @@ class Interpreter(private val file: File, private val debug: Boolean) {
                             operator = null
                         } else {
                             operand = token.value.toValue(data)
+                            operandName = token.value
                         }
                     }
 
                     TokenType.OPERATOR -> {
                         operator = token.value
+                    }
+
+                    TokenType.ASSIGNMENT -> {
+                        if (operandName != null) {
+                            declaration = Declaration(false, operandName, true)
+                        }
                     }
 
                     else -> {}
@@ -130,7 +138,7 @@ class Interpreter(private val file: File, private val debug: Boolean) {
                                 if (existing.constant) {
                                     throw InternalConstantException("${existing.name} is a constant")
                                 } else if (existing.value.second != value.second) {
-                                    throw InternalTypeException("${existing.name} was expecting ${existing.value.second}, but ${value.second} was provided")
+                                    throw InternalTypeException("${existing.name} is a ${existing.value.second.name.lowercase()}, but ${value.second.name.lowercase()} was provided")
                                 }
 
                                 existing.value = value

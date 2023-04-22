@@ -11,19 +11,7 @@ cd morphy
 mv build/install/morphy/bin/morphy /usr/local/bin/
 ```
 
-### Syntax
-
-```
-x = 5
-y = 2
-x + y
-x - y
-x * y
-x / y
-x ^ y
-x % y
-x + "will fail"
-```
+### [Example](https://github.com/Streamer272/morphy/blob/main/example.morphy)
 
 ### License
 [MIT](https://github.com/Streamer272/morphy/blob/main/LICENSE)
