@@ -4,7 +4,7 @@ import java.io.File
 import kotlin.math.pow
 
 val operators = arrayOf("+", "-", "*", "/", "^", "%")
-val conditions = arrayOf("&&", "||", "!", "??")
+val conditions = arrayOf("&&", "||", "!", "??", "==", "!=")
 val assignments = arrayOf("=")
 val comments = arrayOf("//")
 val declarationConstant = "val"
@@ -102,7 +102,7 @@ class Interpreter(private val file: File, private val debug: Boolean) {
                             println(token.value.toValue(data).second.name.lowercase())
                             type = false
                         } else if (operand != null) {
-                            if (operator == null) throw InternalSyntaxException("perator expected")
+                            if (operator == null) throw InternalSyntaxException("operator expected")
 
                             val value = token.value.toValue(data)
                             when (operator) {
@@ -112,6 +112,8 @@ class Interpreter(private val file: File, private val debug: Boolean) {
                                 "/" -> println(operand.toFloat() / value.toFloat())
                                 "^" -> println(operand.toFloat().pow(value.toFloat()))
                                 "%" -> println(operand.toFloat() % value.toFloat())
+                                "==" -> println(operand.first == value.first)
+                                "!=" -> println(operand.first != value.first)
                             }
                             operand = null
                             operator = null
@@ -129,6 +131,10 @@ class Interpreter(private val file: File, private val debug: Boolean) {
                         if (operandName != null) {
                             declaration = Declaration(false, operandName, true)
                         }
+                    }
+
+                    TokenType.CONDITION -> {
+                        operator = token.value
                     }
 
                     else -> {}

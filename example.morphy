@@ -17,6 +17,8 @@ type y
 -y
 "plus"
 x + y
+x == 5
+x == 6
 "minus"
 x - y
 "multiply"
